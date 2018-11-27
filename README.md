@@ -54,8 +54,8 @@ export BUCKET=gs://${PROJECT}_data_final
 export REGION=europe-west1
 export DATASET_NAME=ltv
 
-export COMPOSER_NAME="clv-final"
-export COMPOSER_BUCKET_NAME=${PROJECT}_composer_final
+# Reuse existing Cloud Composer cluster and bucket
+export COMPOSER_BUCKET_NAME=europe-west1-tst-rlt-a3ct-d-856627c5-bucket
 export COMPOSER_BUCKET=gs://${COMPOSER_BUCKET_NAME}
 export DF_STAGING=${COMPOSER_BUCKET}/dataflow_staging
 export DF_ZONE=${REGION}-b
@@ -156,6 +156,7 @@ gcloud composer environments create ${COMPOSER_NAME} \
 --zone ${REGION}-b \
 --machine-type n1-standard-1 \
 --service-account=composer@${PROJECT}.iam.gserviceaccount.com
+--network "main-euw1"
 ```
 
 #### Make SQL files available to the DAG
