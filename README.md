@@ -6,21 +6,23 @@ The project also shows how to deploy a production-ready data processing pipeline
 
 ## Install
 
-### install Miniconda
+**IMPORTANT** Use Python < 3.7. TensorFlow cannot be installed (yet) with `pip` on Python 3.7.
 
-The code works with python 2/3.  Using Miniconda2:
+```
+# Set local version of Python
+pyenv local 3.6.7
 
-    sudo apt-get install -y git bzip2
-    wget https://repo.continuum.io/miniconda/Miniconda2-latest-Linux-x86_64.sh
-    bash Miniconda2-latest-Linux-x86_64.sh -b
-    export PATH=~/miniconda2/bin:$PATH
+# Create and activate virtual environment
+python3 -m venv ./venv
+source venv/bin/activate
 
-### create environment
+# Upgrade pip and install dependencies
+pip install --upgrade pip
+pip install -r requirements.txt
 
-    conda create -n clv
-    source activate clv
-    conda install -n clv python pip
-    pip install -r requirements.txt
+# Deactivate virtual environment when you are done
+deactivate
+```
 
 ### Launch Jupyter
 If you are interested in using Jupyter with Datalab, you can do the following:
