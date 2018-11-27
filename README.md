@@ -100,9 +100,12 @@ gsutil cp dist/* ${COMPOSER_BUCKET}/code/
 ### Set up Cloud Composer
 
 #### Enable the required APIs
-- Cloud Composer API
-- Machine Learning API
-- Dataflow API
+
+```
+gcloud services enable dataflow.googleapis.com  # Dataflow API
+gcloud services enable composer.googleapis.com  # Cloud Composer API
+gcloud services enable ml.googleapis.com        # Cloud Machine Learning Engine
+```
 
 #### Create a service account
 Creating a service account is important to make sure that your Cloud Composer instance can perform the required tasks within BigQuery, ML Engine, Dataflow, Cloud Storage and Datastore.
