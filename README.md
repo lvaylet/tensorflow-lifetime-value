@@ -51,14 +51,14 @@ Before running the Airflow script, you need a couple of things to be set up:
 ```
 export PROJECT=$(gcloud config get-value project 2> /dev/null)
 export BUCKET=gs://${PROJECT}_data_final
-export REGION=us-central1
+export REGION=eu-west1
 export DATASET_NAME=ltv
 
 export COMPOSER_NAME="clv-final"
 export COMPOSER_BUCKET_NAME=${PROJECT}_composer_final
 export COMPOSER_BUCKET=gs://${COMPOSER_BUCKET_NAME}
 export DF_STAGING=${COMPOSER_BUCKET}/dataflow_staging
-export DF_ZONE=${REGION}-a
+export DF_ZONE=${REGION}-b
 export SQL_MP_LOCATION="sql"
 
 export LOCAL_FOLDER=$(pwd)
@@ -69,7 +69,7 @@ export LOCAL_FOLDER=$(pwd)
 ```
 gsutil mb -l ${REGION} -p ${PROJECT} ${BUCKET}
 gsutil mb -l ${REGION} -p ${PROJECT} ${COMPOSER_BUCKET}
-bq --location=US mk --dataset ${PROJECT}:${DATASET_NAME}
+bq --location=EU mk --dataset ${PROJECT}:${DATASET_NAME}
 ```
 
 Create a datastore database as detailed in the [Datastore documentation](https://cloud.google.com/datastore/docs/quickstart)
@@ -153,7 +153,7 @@ This will take a while, from 20 minutes to 1 hour. The good thing is that Airflo
 ```
 gcloud composer environments create ${COMPOSER_NAME} \
 --location ${REGION}  \
---zone ${REGION}-f \
+--zone ${REGION}-b \
 --machine-type n1-standard-1 \
 --service-account=composer@${PROJECT}.iam.gserviceaccount.com
 ```
