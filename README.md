@@ -77,7 +77,7 @@ Create a datastore database as detailed in the [Datastore documentation](https:/
 3 - Copying useful data
 
 ```
-# Copy the raw dataset
+# Copy the raw dataset (19.8 GiB)
 gsutil cp gs://solutions-public-assets/ml-clv/db_dump.csv ${BUCKET}
 gsutil cp ${BUCKET}/db_dump.csv ${COMPOSER_BUCKET}
 
@@ -194,6 +194,12 @@ gsutil cp ./run/airflow/gcs_datastore_transform.js ${COMPOSER_BUCKET}
 ```
 
 #### Set environment variables
+
+Install `kubectl` to communicate with the Cloud Composer cluster:
+
+```
+gcloud components install kubectl
+```
 
 Region where things happen:
 
