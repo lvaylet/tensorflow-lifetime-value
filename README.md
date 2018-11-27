@@ -107,7 +107,7 @@ gsutil cp dist/* ${COMPOSER_BUCKET}/code/
 #### Create a service account
 Creating a service account is important to make sure that your Cloud Composer instance can perform the required tasks within BigQuery, ML Engine, Dataflow, Cloud Storage and Datastore.
 
-The following creates a service account called composer@[YOUR-PROJECT-ID].iam.gserviceaccount.com. and assigns the required roles to the service account.
+The following creates a service account called `composer@[YOUR-PROJECT-ID].iam.gserviceaccount.com` and assigns the required roles to the service account.
 
 ```
 gcloud iam service-accounts create composer --display-name composer --project ${PROJECT}
@@ -145,10 +145,10 @@ gcloud projects add-iam-policy-binding ${PROJECT} \
 --role roles/storage.objectAdmin
 ```
 
-Wait until the service account has all the proper roles setup.
+Wait until the service account has all the proper roles set up.
 
 #### Create a composer instance with the service account
-This will take a while, from 20 minutes to 1 hour. The good thing is that Airflow gets all setup for you.
+This will take a while, from 20 minutes to 1 hour. The good thing is that Airflow gets all set up for you.
 
 ```
 gcloud composer environments create ${COMPOSER_NAME} \
@@ -161,7 +161,7 @@ gcloud composer environments create ${COMPOSER_NAME} \
 #### Make SQL files available to the DAG
 There are various ways of calling BigQuery queries. This solutions leverages BigQuery files directly. For them to be accessible by the DAGs, they need to be in the same folder.
 
-The following command line, copies the entire sql folder as a subfolder in the Airflow dags folder.
+The following command line, copies the entire `sql` folder as a subfolder in the Airflow `dags` folder.
 
 ```
 cd ${LOCAL_FOLDER}/preparation
@@ -176,14 +176,14 @@ gcloud composer environments storage dags import \
 #### Other files
 Some files are important when running the DAG. They can be saved in the `data` folder:
 
-1 - The BigQuery schema file used to load data into BigQuery
+1 - The BigQuery schema file used to load data into BigQuery:
 
 ```
 cd ${LOCAL_FOLDER}
 gsutil cp ./run/airflow/schema_source.json ${COMPOSER_BUCKET}
 ```
 
-2 - A Javascript file used by the Dataflow template for processing.
+2 - A Javascript file used by the Dataflow template for processing:
 
 ```
 gsutil cp ./run/airflow/gcs_datastore_transform.js ${COMPOSER_BUCKET}
@@ -191,7 +191,7 @@ gsutil cp ./run/airflow/gcs_datastore_transform.js ${COMPOSER_BUCKET}
 
 #### Set environment variables
 
-Region where things happen
+Region where things happen:
 
 ```
 gcloud composer environments run ${COMPOSER_NAME} variables --location ${REGION} \
@@ -199,7 +199,7 @@ gcloud composer environments run ${COMPOSER_NAME} variables --location ${REGION}
 --set region ${REGION}
 ```
 
-Staging location for Dataflow
+Staging location for Dataflow:
 
 ```
 gcloud composer environments run ${COMPOSER_NAME} variables --location ${REGION} \
@@ -207,7 +207,7 @@ gcloud composer environments run ${COMPOSER_NAME} variables --location ${REGION}
 --set df_temp_location ${DF_STAGING}
 ```
 
-Zone where Dataflow should run
+Zone where Dataflow should run:
 
 ```
 gcloud composer environments run ${COMPOSER_NAME} variables --location ${REGION} \
@@ -215,7 +215,7 @@ gcloud composer environments run ${COMPOSER_NAME} variables --location ${REGION}
 --set df_zone ${DF_ZONE}
 ```
 
-BigQuery working dataset
+BigQuery working dataset:
 
 ```
 gcloud composer environments run ${COMPOSER_NAME} variables --location ${REGION} \
@@ -223,7 +223,7 @@ gcloud composer environments run ${COMPOSER_NAME} variables --location ${REGION}
 --set dataset ${DATASET_NAME}
 ```
 
-Composer bucket
+Composer bucket:
 
 ```
 gcloud composer environments run ${COMPOSER_NAME} variables --location ${REGION} \
@@ -232,7 +232,7 @@ gcloud composer environments run ${COMPOSER_NAME} variables --location ${REGION}
 ```
 
 #### Import DAG
-You need to run this for all your dag files. This solution only has two located in the [run/airflow/dags](run/airflow/dags) folder.
+You need to run this for all your dag files. This solution only has two, located in the [run/airflow/dags](run/airflow/dags) folder.
 
 ```
 gcloud composer environments storage dags import \
@@ -254,7 +254,7 @@ You now should have both DAGs and the SQL files in the Cloud Composer's reserved
 
 Airflow can take various parameters as inputs.
 
-The following are used within the .sql files through the syntax {{ dag_run.conf['PARAMETER-NAME'] }}
+The following are used within the `.sql` files through the syntax `{{ dag_run.conf['PARAMETER-NAME'] }}`
 
 - `project`: Project ID where the data is located
 - `dataset`: Dataset that is used to write and read the data
@@ -294,24 +294,28 @@ predict_serve \
 ```
 
 ## Train and Tune Models
-To run training or hypertuning you can use the `mltrain.sh` script. It must be run from the top level directory, as in the examples below. For ML Engine jobs you must supply a bucket on GCS. The job data folder will be `gs://bucket/data` and the job directory will be `gs://bucket/jobs`. So your data files must already be in `gs://bucket/data`. If you use `${COMPOSER_BUCKET}`, and the DAG has been run at least once, the data files will be present.  For DNN models the data should be named `train.csv`, `eval.csv` and `test.csv`, for probabilistic models the file must be `btyd.csv`.
+To run training or hypertuning you can use the `mltrain.sh` script. It must be run from the top level directory, as in the examples below. For ML Engine jobs you must supply a bucket on GCS. The job data folder will be `gs://bucket/data` and the job directory will be `gs://bucket/jobs`. So your data files must already be in `gs://bucket/data`. If you use `${COMPOSER_BUCKET}`, and the DAG has been run at least once, the data files will be present. For DNN models the data should be named `train.csv`, `eval.csv` and `test.csv`. For probabilistic models the file must be named `btyd.csv`.
 
-For example:
+For example, train locally with:
 
 ```
 gsutil -m cp -r ${COMPOSER_BUCKET}/data .
 run/mltrain.sh local data
 ```
 
+Train on ML Engine with:
+
 ```
 run/mltrain.sh train ${COMPOSER_BUCKET}
 ```
+
+Tune hyperparameters with:
 
 ```
 run/mltrain.sh tune gs://your-bucket
 ```
 
-For probabilistic models:
+Train probabilistic models locally with:
 
 ```
 run/mltrain.sh local data --model_type paretonbd_model --threshold_date 2013-01-31 --predict_end 2013-07-31
