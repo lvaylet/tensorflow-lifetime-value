@@ -2,6 +2,9 @@
 
 .DS_Store
 
+clv_mle/clv_ml_engine.egg-info/
+clv_mle/dist/
+
 data/
 jobs/
 trained/
