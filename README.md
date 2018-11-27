@@ -151,7 +151,7 @@ Wait until the service account has all the proper roles setup.
 This will take a while, from 20 minutes to 1 hour. The good thing is that Airflow gets all setup for you.
 
 ```
-gcloud beta composer environments create ${COMPOSER_NAME} \
+gcloud composer environments create ${COMPOSER_NAME} \
 --location ${REGION}  \
 --zone ${REGION}-f \
 --machine-type n1-standard-1 \
@@ -166,7 +166,7 @@ The following command line, copies the entire sql folder as a subfolder in the A
 ```
 cd ${LOCAL_FOLDER}/preparation
 
-gcloud beta composer environments storage dags import \
+gcloud composer environments storage dags import \
 --environment ${COMPOSER_NAME} \
 --source  ${SQL_MP_LOCATION} \
 --location ${REGION} \
@@ -194,7 +194,7 @@ gsutil cp ./run/airflow/gcs_datastore_transform.js ${COMPOSER_BUCKET}
 Region where things happen
 
 ```
-gcloud beta composer environments run ${COMPOSER_NAME} variables --location ${REGION} \
+gcloud composer environments run ${COMPOSER_NAME} variables --location ${REGION} \
 -- \
 --set region ${REGION}
 ```
@@ -202,7 +202,7 @@ gcloud beta composer environments run ${COMPOSER_NAME} variables --location ${RE
 Staging location for Dataflow
 
 ```
-gcloud beta composer environments run ${COMPOSER_NAME} variables --location ${REGION} \
+gcloud composer environments run ${COMPOSER_NAME} variables --location ${REGION} \
 -- \
 --set df_temp_location ${DF_STAGING}
 ```
@@ -210,7 +210,7 @@ gcloud beta composer environments run ${COMPOSER_NAME} variables --location ${RE
 Zone where Dataflow should run
 
 ```
-gcloud beta composer environments run ${COMPOSER_NAME} variables --location ${REGION} \
+gcloud composer environments run ${COMPOSER_NAME} variables --location ${REGION} \
 -- \
 --set df_zone ${DF_ZONE}
 ```
@@ -218,7 +218,7 @@ gcloud beta composer environments run ${COMPOSER_NAME} variables --location ${RE
 BigQuery working dataset
 
 ```
-gcloud beta composer environments run ${COMPOSER_NAME} variables --location ${REGION} \
+gcloud composer environments run ${COMPOSER_NAME} variables --location ${REGION} \
 -- \
 --set dataset ${DATASET_NAME}
 ```
@@ -226,7 +226,7 @@ gcloud beta composer environments run ${COMPOSER_NAME} variables --location ${RE
 Composer bucket
 
 ```
-gcloud beta composer environments run ${COMPOSER_NAME} variables --location ${REGION} \
+gcloud composer environments run ${COMPOSER_NAME} variables --location ${REGION} \
 -- \
 --set composer_bucket_name ${COMPOSER_BUCKET_NAME}
 ```
@@ -235,13 +235,13 @@ gcloud beta composer environments run ${COMPOSER_NAME} variables --location ${RE
 You need to run this for all your dag files. This solution only has two located in the [run/airflow/dags](run/airflow/dags) folder.
 
 ```
-gcloud beta composer environments storage dags import \
+gcloud composer environments storage dags import \
 --environment ${COMPOSER_NAME} \
 --source run/airflow/dags/01_build_train_deploy.py \
 --location ${REGION} \
 --project ${PROJECT}
 
-gcloud beta composer environments storage dags import \
+gcloud composer environments storage dags import \
 --environment ${COMPOSER_NAME} \
 --source run/airflow/dags/02_predict_serve.py \
 --location ${REGION} \
@@ -274,7 +274,7 @@ Other variables are important as they depend on your environment and are passed 
 - `max_monetary`: Monetary cap to discard all customers that spend more than that amount
 
 ```
-gcloud beta composer environments run ${COMPOSER_NAME} \
+gcloud composer environments run ${COMPOSER_NAME} \
 --project ${PROJECT} \
 --location ${REGION} \
 trigger_dag \
@@ -284,7 +284,7 @@ build_train_deploy \
 ```
 
 ```
-gcloud beta composer environments run ${COMPOSER_NAME} \
+gcloud composer environments run ${COMPOSER_NAME} \
 --project ${PROJECT} \
 --location ${REGION} \
 trigger_dag \
