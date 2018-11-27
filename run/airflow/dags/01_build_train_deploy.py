@@ -27,17 +27,19 @@ from airflow.contrib.hooks.gcs_hook import GoogleCloudStorageHook
 from airflow.operators import bash_operator
 from airflow.utils import trigger_rule
 
-def _get_project_id():
-  """Get project ID from default GCP connection."""
 
-  extras = BaseHook.get_connection('google_cloud_default').extra_dejson
-  key = 'extra__google_cloud_platform__project'
-  if key in extras:
-    project_id = extras[key]
-  else:
-    raise ('Must configure project_id in google_cloud_default '
-           'connection from Airflow Console')
-  return project_id
+def _get_project_id():
+    """Get project ID from default GCP connection."""
+
+    extras = BaseHook.get_connection('google_cloud_default').extra_dejson
+    key = 'extra__google_cloud_platform__project'
+    if key in extras:
+        project_id = extras[key]
+    else:
+        raise ('Must configure project_id in google_cloud_default '
+               'connection from Airflow Console')
+    return project_id
+
 
 PROJECT = _get_project_id()
 REGION = models.Variable.get('region')
@@ -51,7 +53,7 @@ LOCATION_TRAINING_DATA = '{}/data'.format(COMPOSER_BUCKET_NAME)
 PREFIX_JOBS_EXPORT = 'jobs/clv-composer'
 PREFIX_FINAL_MODEL = '{}/final'.format(PREFIX_JOBS_EXPORT)
 
-MODEL_PACKAGE_NAME = 'clv_ml_engine-0.1.tar.gz' # Matches name in setup.py
+MODEL_PACKAGE_NAME = 'clv_ml_engine-0.1.tar.gz'  # Matches name in setup.py
 
 #[START dag_build_train_deploy]
 default_dag_args = {
@@ -62,7 +64,7 @@ default_dag_args = {
 
 dag = models.DAG(
     'build_train_deploy',
-    default_args = default_dag_args)
+    default_args=default_dag_args)
 #[END dag_build_train_deploy]
 
 # Loads the database dump from Cloud Storage to BigQuery
@@ -195,6 +197,7 @@ t5d = bigquery_to_gcs.BigQueryToCloudStorageOperator(
     dag=dag
 )
 
+
 #
 # Have ML Engine periodically train the model
 #
@@ -244,7 +247,6 @@ def do_copy_model_to_final(**kwargs):
     # and skip the ones that are not files but sub buckets)
     for c in [f for f in all_jobs_files
               if latest_model_bucket in f and f[-1] != '/']:
-
         # The model used for training is saved into a 'final' sub bucket of the
         # export bucket.
         dest_object = c.split(latest_model_bucket)[1]
@@ -258,6 +260,7 @@ def do_copy_model_to_final(**kwargs):
             destination_object=dest_object
         )
 
+
 # Note that this could be done as well in Tensorflow using tf.gFile aftet the
 # model is created but for  flexibility reason, it was decided to do this in the
 # wider worflow. This way, it is also possible pick other models
@@ -266,6 +269,7 @@ t7 = PythonOperator(
     project_id=PROJECT,
     python_callable=do_copy_model_to_final,
     dag=dag)
+
 
 #
 # Model Creation
@@ -288,9 +292,9 @@ def do_create_model(**kwargs):
     It leverages the check from the previous task pushed using xcom.
     """
     model_params = {
-      'name': kwargs['dag_run'].conf.get('model_name'),
-      'description': 'A custom DNN regressor model',
-      'regions': [REGION]
+        'name': kwargs['dag_run'].conf.get('model_name'),
+        'description': 'A custom DNN regressor model',
+        'regions': [REGION]
     }
 
     ti = kwargs['ti']
@@ -300,6 +304,7 @@ def do_create_model(**kwargs):
         mle = MLEngineHook()
         mle.create_model(PROJECT, model_params)
 
+
 # Checks if model exists using Hook instead of GCP operators due to conditional.
 t8 = PythonOperator(
     task_id='check_model', dag=dag, python_callable=do_check_model)
@@ -307,6 +312,7 @@ t8 = PythonOperator(
 # Creates model if it does not exist using Hook instead of GCP operators
 t9 = PythonOperator(
     task_id='create_model', dag=dag, python_callable=do_create_model)
+
 
 #
 # Version Creation
@@ -327,10 +333,10 @@ def do_create_version(**kwargs):
     check from the previous task pushed using xcom.
     """
     version_params = {
-      "name": kwargs['dag_run'].conf.get('model_version'),
-      "description": 'Version 1',
-      "runtimeVersion": kwargs['dag_run'].conf.get('tf_version'),
-      "deploymentUri": 'gs://{}/{}'.format(COMPOSER_BUCKET_NAME, PREFIX_FINAL_MODEL)
+        "name": kwargs['dag_run'].conf.get('model_version'),
+        "description": 'Version 1',
+        "runtimeVersion": kwargs['dag_run'].conf.get('tf_version'),
+        "deploymentUri": 'gs://{}/{}'.format(COMPOSER_BUCKET_NAME, PREFIX_FINAL_MODEL)
     }
 
     ti = kwargs['ti']
@@ -349,6 +355,7 @@ def do_create_version(**kwargs):
         mle.delete_version(PROJECT, model_name, version_params['name'])
 
     mle.create_version(PROJECT, model_name, version_params)
+
 
 # Checks if model exists using Hook instead of GCP operators due to conditional.
 t10 = PythonOperator(

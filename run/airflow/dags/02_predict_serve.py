@@ -25,17 +25,19 @@ from airflow.contrib.operators import gcs_to_bq
 from airflow.contrib.hooks import GoogleCloudStorageHook
 from airflow.utils import trigger_rule
 
-def _get_project_id():
-  """Get project ID from default GCP connection."""
 
-  extras = BaseHook.get_connection('google_cloud_default').extra_dejson
-  key = 'extra__google_cloud_platform__project'
-  if key in extras:
-    project_id = extras[key]
-  else:
-    raise ('Must configure project_id in google_cloud_default '
-           'connection from Airflow Console')
-  return project_id
+def _get_project_id():
+    """Get project ID from default GCP connection."""
+
+    extras = BaseHook.get_connection('google_cloud_default').extra_dejson
+    key = 'extra__google_cloud_platform__project'
+    if key in extras:
+        project_id = extras[key]
+    else:
+        raise ('Must configure project_id in google_cloud_default '
+               'connection from Airflow Console')
+    return project_id
+
 
 PROJECT = _get_project_id()
 REGION = models.Variable.get('region')
@@ -57,7 +59,7 @@ default_dag_args = {
 
 dag = models.DAG(
     'predict_serve',
-    default_args = default_dag_args)
+    default_args=default_dag_args)
 #[END dag_predict_serve]
 
 #
@@ -65,6 +67,7 @@ dag = models.DAG(
 #
 
 job_id = 'clv-{}'.format(datetime.datetime.now().strftime('%Y%m%d%H%M'))
+
 
 def do_predict_clv(**kwargs):
     """ Runs a batch prediction on new data and saving the results as CSV into
@@ -88,13 +91,15 @@ def do_predict_clv(**kwargs):
         output_path=gcs_prediction_output,
         model_name=model_name,
         version_name=model_version,
-        #uri=gs://WHERE_MODEL_IS_IF_NOT_ML_ENGINE
-        #runtime_version=TF_VERSION,
+        # uri=gs://WHERE_MODEL_IS_IF_NOT_ML_ENGINE
+        # runtime_version=TF_VERSION,
         dag=dag
     ).execute(kwargs)
 
+
 t1 = PythonOperator(
     task_id='predict_clv', dag=dag, python_callable=do_predict_clv)
+
 
 #
 # Load the predictions from GCS to Datastore.
@@ -125,8 +130,10 @@ def do_load_to_datastore(**kwargs):
         dag=dag
     ).execute(kwargs)
 
+
 t2 = PythonOperator(
     task_id='load_to_datastore', dag=dag, python_callable=do_load_to_datastore)
+
 
 #
 # Loads the database dump from Cloud Storage to BigQuery
@@ -173,14 +180,14 @@ def do_load_to_bq(**kwargs):
         bucket=COMPOSER_BUCKET_NAME,
         source_objects=predictions_files,
         schema_fields=[{
-            'name':'customer_id',
-            'type':'STRING'
-        },{
-            'name':'predicted_monetary',
-            'type':'FLOAT'
-        },{
-            'name':'predictions',
-            'type':'FLOAT'
+            'name': 'customer_id',
+            'type': 'STRING'
+        }, {
+            'name': 'predicted_monetary',
+            'type': 'FLOAT'
+        }, {
+            'name': 'predictions',
+            'type': 'FLOAT'
         }],
         source_format="NEWLINE_DELIMITED_JSON",
         skip_leading_rows=1,
@@ -192,6 +199,7 @@ def do_load_to_bq(**kwargs):
         dag=dag
     ).execute(kwargs)
 
+
 t3 = PythonOperator(
     task_id='list_predictions_files', dag=dag, python_callable=do_list_predictions_files)
 
@@ -202,15 +210,3 @@ t4 = PythonOperator(
 t1.set_downstream(t2)
 t1.set_downstream(t3)
 t3.set_downstream(t4)
-
-
-
-
-
-
-
-
-
-
-
-
