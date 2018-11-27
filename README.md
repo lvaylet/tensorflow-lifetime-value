@@ -51,7 +51,7 @@ Before running the Airflow script, you need a couple of things to be set up:
 ```
 export PROJECT=$(gcloud config get-value project 2> /dev/null)
 export BUCKET=gs://${PROJECT}_data_final
-export REGION=eu-west1
+export REGION=europe-west1
 export DATASET_NAME=ltv
 
 export COMPOSER_NAME="clv-final"
